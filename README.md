@@ -1,6 +1,6 @@
 # 🤖 Combate ⚔️
 
-Bem-vindo ao repositório de documentação e firmware para robôs de combate da Equpe Titans! Este projeto organiza todas as informações técnicas, designs e códigos relacionados aos nossos robôs de combate categorizados por classes de peso. 🏗️💻
+Bem-vindo ao repositório de documentação e firmware para robôs de combate da Equipe Titans! Este projeto organiza todas as informações técnicas, designs e códigos relacionados aos nossos robôs de combate categorizados por classes de peso. 🏗️💻
 
 ## 🗂️ Estrutura 
 
