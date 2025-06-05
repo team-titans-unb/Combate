@@ -10,13 +10,15 @@ A seguir segue um exemplo da estrutura organizacional:
 │ ├── Robo_Alpha/
 │ │ ├── 📄 Documentacao/
 | | | ├── 📟 Eletrônica/
-| | | └── ⚙ Mecânica/
+| | | ├── 📸 Imagens/
+| | | └── ⚙️ Mecânica/
 │ │ ├── 💾 Firmware/
 │ │ └── 📌 README.md
 │ └── Robo_Beta/
 │ │ ├── 📄 Documentacao/
 | | | ├── 📟 Eletrônica/
-| | | └── ⚙ Mecânica/
+| | | ├── 📸 Imagens/
+| | | └── ⚙️ Mecânica/
 │ │ ├── 💾 Firmware/
 │ │ └── 📌 README.md
 ├── 🐜 Antweight/
