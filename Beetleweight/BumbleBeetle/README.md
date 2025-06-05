@@ -1,7 +1,8 @@
 # 🤖 Bumblebeetle - Beetleweight Combat Robot
-  O projeto 'BumbleBeetle' é um robô de combate da categoria de 1.36kg. Tal projeto, é composto por uma pequena arma giratória caracterizada como DRUMS.
+  O projeto 'BumbleBeetle' é um robô de combate da categoria de 1.36kg. Tal projeto, é composto por uma pequena arma giratória caracterizada como DRUMS.  
+  <img src="Documents/Images/BumbleRender.jpeg" width="450" align="right">  
 
-## ⚙️ Especificações Técnicas
+### ⚙️ Especificações Técnicas
 
 - **Categoria:** Beetleweight (1,36kg)  
 - **Arma:** Tambor giratório horizontal  
@@ -21,4 +22,3 @@
 - **Arma de aço 1045 com têmpera**
 - **Sistema de auto-recuperação**
 - **Blindagem:** Proteção Impressa de TPU
-- **Centro de gravidade baixo** (25mm de altura)
