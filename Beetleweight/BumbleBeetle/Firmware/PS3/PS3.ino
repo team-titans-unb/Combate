@@ -1,241 +1,152 @@
+/*
+/*                                                                                             */
+/*  Descrição: Código refatorado para controlar um robô com 2 motores DC e 1 motor com ESC     */
+/*              usando um controle de PlayStation 3.                                          */
+/*  Autor: Refatorado por IA com base no código original.                                      */
+/*  Data: 07/06/2025                                                                          */
+/
+
 #include <Ps3Controller.h>
 
-int player = 0;
-int battery = 0;
+// --- Pinos para o Motor Driver (H-Bridge) ---
+// Motor 1 (Direito)
+int RPWM_Output_1 = 18; // PWM para frente
+int LPWM_Output_1 = 19; // PWM para trás
 
-void notify()
-{
-    //--- Digital cross/square/triangle/circle button events ---
-    if( Ps3.event.button_down.cross )
-        Serial.println("Started pressing the cross button");
-    if( Ps3.event.button_up.cross )
-        Serial.println("Released the cross button");
+// Motor 2 (Esquerdo)
+int RPWM_Output_2 = 17; // PWM para frente
+int LPWM_Output_2 = 16; // PWM para trás
 
-    if( Ps3.event.button_down.square )
-        Serial.println("Started pressing the square button");
-    if( Ps3.event.button_up.square )
-        Serial.println("Released the square button");
+// --- Configurações de PWM para os motores DC ---
+const int freq = 5000;
+const int resolution = 8; // Resolução de 8 bits (0-255)
+// Canais PWM
+const int rChannel_1 = 0;
+const int lChannel_1 = 1;
+const int rChannel_2 = 2;
+const int lChannel_2 = 3;
 
-    if( Ps3.event.button_down.triangle )
-        Serial.println("Started pressing the triangle button");
-    if( Ps3.event.button_up.triangle )
-        Serial.println("Released the triangle button");
+// --- Configurações para o ESC ---
+const int escPin = 13;
+const int escChannel = 4;
+const int escFreq = 60; // Frequência comum para ESCs
+int velocidadeEscDesligado = 75; // Valor PWM para o ESC parado
+int velocidadeEscLigado = 90;    // Valor PWM para o ESC em baixa rotação
+bool estadoMotorEsc = false;   // false = desligado, true = ligado
 
-    if( Ps3.event.button_down.circle )
-        Serial.println("Started pressing the circle button");
-    if( Ps3.event.button_up.circle )
-        Serial.println("Released the circle button");
+// --- Protótipo da função de controle dos motores ---
+void driveMotor(int motorNum, int speed);
 
-    //--------------- Digital D-pad button events --------------
-    if( Ps3.event.button_down.up )
-        Serial.println("Started pressing the up button");
-    if( Ps3.event.button_up.up )
-        Serial.println("Released the up button");
+void setup() {
+  Serial.begin(115200);
 
-    if( Ps3.event.button_down.right )
-        Serial.println("Started pressing the right button");
-    if( Ps3.event.button_up.right )
-        Serial.println("Released the right button");
+  // --- Configuração dos canais PWM para os motores DC ---
+  ledcSetup(rChannel_1, freq, resolution);
+  ledcSetup(lChannel_1, freq, resolution);
+  ledcSetup(rChannel_2, freq, resolution);
+  ledcSetup(lChannel_2, freq, resolution);
 
-    if( Ps3.event.button_down.down )
-        Serial.println("Started pressing the down button");
-    if( Ps3.event.button_up.down )
-        Serial.println("Released the down button");
+  // --- Associa os pinos aos canais PWM ---
+  ledcAttachPin(RPWM_Output_1, rChannel_1);
+  ledcAttachPin(LPWM_Output_1, lChannel_1);
+  ledcAttachPin(RPWM_Output_2, rChannel_2);
+  ledcAttachPin(LPWM_Output_2, lChannel_2);
 
-    if( Ps3.event.button_down.left )
-        Serial.println("Started pressing the left button");
-    if( Ps3.event.button_up.left )
-        Serial.println("Released the left button");
+  // --- Configuração do canal PWM para o ESC ---
+  ledcSetup(escChannel, escFreq, resolution);
+  ledcAttachPin(escPin, escChannel);
+  ledcWrite(escChannel, velocidadeEscDesligado); // Garante que o ESC comece desligado
 
-    //------------- Digital shoulder button events -------------
-    if( Ps3.event.button_down.l1 )
-        Serial.println("Started pressing the left shoulder button");
-    if( Ps3.event.button_up.l1 )
-        Serial.println("Released the left shoulder button");
+  // --- Inicialização do Controle PS3 ---
+  // IMPORTANTE: Substitua pelo MAC Address do seu controle!
+  Ps3.begin("00:1A:2B:3C:4D:5E"); 
+  
+  Serial.println("Aguardando conexão do controle PS3...");
+}
 
-    if( Ps3.event.button_down.r1 )
-        Serial.println("Started pressing the right shoulder button");
-    if( Ps3.event.button_up.r1 )
-        Serial.println("Released the right shoulder button");
-
-    //-------------- Digital trigger button events -------------
-    if( Ps3.event.button_down.l2 )
-        Serial.println("Started pressing the left trigger button");
-    if( Ps3.event.button_up.l2 )
-        Serial.println("Released the left trigger button");
-
-    if( Ps3.event.button_down.r2 )
-        Serial.println("Started pressing the right trigger button");
-    if( Ps3.event.button_up.r2 )
-        Serial.println("Released the right trigger button");
-
-    //--------------- Digital stick button events --------------
-    if( Ps3.event.button_down.l3 )
-        Serial.println("Started pressing the left stick button");
-    if( Ps3.event.button_up.l3 )
-        Serial.println("Released the left stick button");
-
-    if( Ps3.event.button_down.r3 )
-        Serial.println("Started pressing the right stick button");
-    if( Ps3.event.button_up.r3 )
-        Serial.println("Released the right stick button");
-
-    //---------- Digital select/start/ps button events ---------
-    if( Ps3.event.button_down.select )
-        Serial.println("Started pressing the select button");
-    if( Ps3.event.button_up.select )
-        Serial.println("Released the select button");
-
-    if( Ps3.event.button_down.start )
-        Serial.println("Started pressing the start button");
-    if( Ps3.event.button_up.start )
-        Serial.println("Released the start button");
-
-    if( Ps3.event.button_down.ps )
-        Serial.println("Started pressing the Playstation button");
-    if( Ps3.event.button_up.ps )
-        Serial.println("Released the Playstation button");
-
-
-    //---------------- Analog stick value events ---------------
-   if( abs(Ps3.event.analog_changed.stick.lx) + abs(Ps3.event.analog_changed.stick.ly) > 2 ){
-       Serial.print("Moved the left stick:");
-       Serial.print(" x="); Serial.print(Ps3.data.analog.stick.lx, DEC);
-       Serial.print(" y="); Serial.print(Ps3.data.analog.stick.ly, DEC);
-       Serial.println();
+void loop() {
+  if (Ps3.isConnected()) {
+    // --- Controle do Motor com ESC (Liga/Desliga) ---
+    // Usamos "event.button_down" para registrar apenas um toque, evitando acionamentos múltiplos.
+    if (Ps3.event.button_down.cross) {
+      estadoMotorEsc = !estadoMotorEsc; // Inverte o estado (liga/desliga)
+      if (estadoMotorEsc) {
+        ledcWrite(escChannel, velocidadeEscLigado);
+        Serial.println("Motor ESC LIGADO");
+      } else {
+        ledcWrite(escChannel, velocidadeEscDesligado);
+        Serial.println("Motor ESC DESLIGADO");
+      }
     }
 
-   if( abs(Ps3.event.analog_changed.stick.rx) + abs(Ps3.event.analog_changed.stick.ry) > 2 ){
-       Serial.print("Moved the right stick:");
-       Serial.print(" x="); Serial.print(Ps3.data.analog.stick.rx, DEC);
-       Serial.print(" y="); Serial.print(Ps3.data.analog.stick.ry, DEC);
-       Serial.println();
-   }
+    // --- Controle de Movimento do Robô ---
+    // Giro no próprio eixo (prioridade sobre o analógico)
+    if (Ps3.data.button.square) { // Gira para a esquerda
+      driveMotor(1, 150);  // Motor direito para frente
+      driveMotor(2, -150); // Motor esquerdo para trás
+    } else if (Ps3.data.button.circle) { // Gira para a direita
+      driveMotor(1, -150); // Motor direito para trás
+      driveMotor(2, 150);  // Motor esquerdo para frente
+    } else {
+      // Controle de velocidade e curva pelos analógicos
+      // Analógico Esquerdo (Y): Para frente e para trás
+      // Analógico Direito (X): Para esquerda e para direita
+      int stickFrente = Ps3.data.analog.stick.ly; // -128 (frente) a 127 (trás)
+      int stickLado = Ps3.data.analog.stick.rx;   // -128 (esquerda) a 127 (direita)
 
-   //--------------- Analog D-pad button events ----------------
-   if( abs(Ps3.event.analog_changed.button.up) ){
-       Serial.print("Pressing the up button: ");
-       Serial.println(Ps3.data.analog.button.up, DEC);
-   }
+      // Mapeia os valores dos analógicos para o range de velocidade do PWM (-255 a 255)
+      int velocidadeFrente = map(stickFrente, -128, 127, 255, -255);
+      int velocidadeLado = map(stickLado, -128, 127, -255, 255);
 
-   if( abs(Ps3.event.analog_changed.button.right) ){
-       Serial.print("Pressing the right button: ");
-       Serial.println(Ps3.data.analog.button.right, DEC);
-   }
+      // Algoritmo de mixagem para controle tipo "tanque"
+      int velMotorDireito = velocidadeFrente - velocidadeLado;
+      int velMotorEsquerdo = velocidadeFrente + velocidadeLado;
 
-   if( abs(Ps3.event.analog_changed.button.down) ){
-       Serial.print("Pressing the down button: ");
-       Serial.println(Ps3.data.analog.button.down, DEC);
-   }
+      // Limita os valores para garantir que fiquem no range do PWM
+      velMotorDireito = constrain(velMotorDireito, -255, 255);
+      velMotorEsquerdo = constrain(velMotorEsquerdo, -255, 255);
 
-   if( abs(Ps3.event.analog_changed.button.left) ){
-       Serial.print("Pressing the left button: ");
-       Serial.println(Ps3.data.analog.button.left, DEC);
-   }
-
-   //---------- Analog shoulder/trigger button events ----------
-   if( abs(Ps3.event.analog_changed.button.l1)){
-       Serial.print("Pressing the left shoulder button: ");
-       Serial.println(Ps3.data.analog.button.l1, DEC);
-   }
-
-   if( abs(Ps3.event.analog_changed.button.r1) ){
-       Serial.print("Pressing the right shoulder button: ");
-       Serial.println(Ps3.data.analog.button.r1, DEC);
-   }
-
-   if( abs(Ps3.event.analog_changed.button.l2) ){
-       Serial.print("Pressing the left trigger button: ");
-       Serial.println(Ps3.data.analog.button.l2, DEC);
-   }
-
-   if( abs(Ps3.event.analog_changed.button.r2) ){
-       Serial.print("Pressing the right trigger button: ");
-       Serial.println(Ps3.data.analog.button.r2, DEC);
-   }
-
-   //---- Analog cross/square/triangle/circle button events ----
-   if( abs(Ps3.event.analog_changed.button.triangle)){
-       Serial.print("Pressing the triangle button: ");
-       Serial.println(Ps3.data.analog.button.triangle, DEC);
-   }
-
-   if( abs(Ps3.event.analog_changed.button.circle) ){
-       Serial.print("Pressing the circle button: ");
-       Serial.println(Ps3.data.analog.button.circle, DEC);
-   }
-
-   if( abs(Ps3.event.analog_changed.button.cross) ){
-       Serial.print("Pressing the cross button: ");
-       Serial.println(Ps3.data.analog.button.cross, DEC);
-   }
-
-   if( abs(Ps3.event.analog_changed.button.square) ){
-       Serial.print("Pressing the square button: ");
-       Serial.println(Ps3.data.analog.button.square, DEC);
-   }
-
-   //---------------------- Battery events ---------------------
-    if( battery != Ps3.data.status.battery ){
-        battery = Ps3.data.status.battery;
-        Serial.print("The controller battery is ");
-        if( battery == ps3_status_battery_charging )      Serial.println("charging");
-        else if( battery == ps3_status_battery_full )     Serial.println("FULL");
-        else if( battery == ps3_status_battery_high )     Serial.println("HIGH");
-        else if( battery == ps3_status_battery_low)       Serial.println("LOW");
-        else if( battery == ps3_status_battery_dying )    Serial.println("DYING");
-        else if( battery == ps3_status_battery_shutdown ) Serial.println("SHUTDOWN");
-        else Serial.println("UNDEFINED");
+      driveMotor(1, velMotorDireito);
+      driveMotor(2, velMotorEsquerdo);
     }
-
+  } else {
+    // Se o controle desconectar, para tudo por segurança
+    driveMotor(1, 0);
+    driveMotor(2, 0);
+    if(estadoMotorEsc){
+      ledcWrite(escChannel, velocidadeEscDesligado);
+      estadoMotorEsc = false;
+    }
+  }
 }
 
-void onConnect(){
-    Serial.println("Connected.");
-}
+/*
+ * @brief Controla um motor DC individualmente.
+ * @param motorNum O número do motor (1 para direito, 2 para esquerdo).
+ * @param speed A velocidade e direção (-255 a 255). Negativo para ré, Positivo para frente, 0 para parar.
+ */
+void driveMotor(int motorNum, int speed) {
+  int absSpeed = abs(speed); // Velocidade absoluta
+  int finalSpeed = constrain(absSpeed, 0, 255); // Garante que a velocidade está entre 0-255
 
-void setup()
-{
-    Serial.begin(115200);
+  int rPwmChannel, lPwmChannel;
 
-    Ps3.attach(notify);
-    Ps3.attachOnConnect(onConnect);
-    Ps3.begin("74:85:76:73:65:71");
+  if (motorNum == 1) { // Motor Direito
+    rPwmChannel = rChannel_1;
+    lPwmChannel = lChannel_1;
+  } else { // Motor Esquerdo
+    rPwmChannel = rChannel_2;
+    lPwmChannel = lChannel_2;
+  }
 
-    Serial.println("Ready.");
-}
-
-void loop()
-{
-    if(!Ps3.isConnected())
-        return;
-
-    //-------------------- Player LEDs -------------------
-    Serial.print("Setting LEDs to player "); Serial.println(player, DEC);
-    Ps3.setPlayer(player);
-
-    player += 1;
-    if(player > 10) player = 0;
-
-
-    //------ Digital cross/square/triangle/circle buttons ------
-    if( Ps3.data.button.cross && Ps3.data.button.down )
-        Serial.println("Pressing both the down and cross buttons");
-    if( Ps3.data.button.square && Ps3.data.button.left )
-        Serial.println("Pressing both the square and left buttons");
-    if( Ps3.data.button.triangle && Ps3.data.button.up )
-        Serial.println("Pressing both the triangle and up buttons");
-    if( Ps3.data.button.circle && Ps3.data.button.right )
-        Serial.println("Pressing both the circle and right buttons");
-
-    if( Ps3.data.button.l1 && Ps3.data.button.r1 )
-        Serial.println("Pressing both the left and right bumper buttons");
-    if( Ps3.data.button.l2 && Ps3.data.button.r2 )
-        Serial.println("Pressing both the left and right trigger buttons");
-    if( Ps3.data.button.l3 && Ps3.data.button.r3 )
-        Serial.println("Pressing both the left and right stick buttons");
-    if( Ps3.data.button.select && Ps3.data.button.start )
-        Serial.println("Pressing both the select and start buttons");
-
-    delay(2000);
+  if (speed > 10) { // Mover para frente (com pequena zona morta)
+    ledcWrite(rPwmChannel, finalSpeed);
+    ledcWrite(lPwmChannel, 0);
+  } else if (speed < -10) { // Mover para trás (com pequena zona morta)
+    ledcWrite(rPwmChannel, 0);
+    ledcWrite(lPwmChannel, finalSpeed);
+  } else { // Parar
+    ledcWrite(rPwmChannel, 0);
+    ledcWrite(lPwmChannel, 0);
+  }
 }
