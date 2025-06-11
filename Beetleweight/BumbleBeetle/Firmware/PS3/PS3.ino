@@ -1,10 +1,3 @@
-/*
-/*                                                                                             */
-/*  Descrição: Código refatorado para controlar um robô com 2 motores DC e 1 motor com ESC     */
-/*              usando um controle de PlayStation 3.                                          */
-/*  Autor: Refatorado por IA com base no código original.                                      */
-/*  Data: 07/06/2025                                                                          */
-/
 
 #include <Ps3Controller.h>
 
@@ -58,8 +51,8 @@ void setup() {
   ledcWrite(escChannel, velocidadeEscDesligado); // Garante que o ESC comece desligado
 
   // --- Inicialização do Controle PS3 ---
-  // IMPORTANTE: Substitua pelo MAC Address do seu controle!
-  Ps3.begin("00:1A:2B:3C:4D:5E"); 
+
+  Ps3.begin("74:85:76:73:65:71"); 
   
   Serial.println("Aguardando conexão do controle PS3...");
 }
@@ -67,7 +60,7 @@ void setup() {
 void loop() {
   if (Ps3.isConnected()) {
     // --- Controle do Motor com ESC (Liga/Desliga) ---
-    // Usamos "event.button_down" para registrar apenas um toque, evitando acionamentos múltiplos.
+
     if (Ps3.event.button_down.cross) {
       estadoMotorEsc = !estadoMotorEsc; // Inverte o estado (liga/desliga)
       if (estadoMotorEsc) {
@@ -80,7 +73,7 @@ void loop() {
     }
 
     // --- Controle de Movimento do Robô ---
-    // Giro no próprio eixo (prioridade sobre o analógico)
+
     if (Ps3.data.button.square) { // Gira para a esquerda
       driveMotor(1, 150);  // Motor direito para frente
       driveMotor(2, -150); // Motor esquerdo para trás
@@ -120,11 +113,6 @@ void loop() {
   }
 }
 
-/*
- * @brief Controla um motor DC individualmente.
- * @param motorNum O número do motor (1 para direito, 2 para esquerdo).
- * @param speed A velocidade e direção (-255 a 255). Negativo para ré, Positivo para frente, 0 para parar.
- */
 void driveMotor(int motorNum, int speed) {
   int absSpeed = abs(speed); // Velocidade absoluta
   int finalSpeed = constrain(absSpeed, 0, 255); // Garante que a velocidade está entre 0-255
