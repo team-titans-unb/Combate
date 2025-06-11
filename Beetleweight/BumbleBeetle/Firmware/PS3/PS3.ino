@@ -60,8 +60,8 @@ void setup() {
 void loop() {
   if (Ps3.isConnected()) {
     // --- Controle do Motor com ESC (Liga/Desliga) ---
-
-    if (Ps3.event.button_down.cross) {
+    // Usamos "event.button_down" para registrar apenas um toque, evitando acionamentos múltiplos.
+    if (Ps3.event.button_down.l2) {
       estadoMotorEsc = !estadoMotorEsc; // Inverte o estado (liga/desliga)
       if (estadoMotorEsc) {
         ledcWrite(escChannel, velocidadeEscLigado);
@@ -73,19 +73,19 @@ void loop() {
     }
 
     // --- Controle de Movimento do Robô ---
-
+    // Giro no próprio eixo (prioridade sobre o analógico)
     if (Ps3.data.button.square) { // Gira para a esquerda
-      driveMotor(1, 150);  // Motor direito para frente
+      driveMotor(1, 150); // Motor direito para frente
       driveMotor(2, -150); // Motor esquerdo para trás
     } else if (Ps3.data.button.circle) { // Gira para a direita
       driveMotor(1, -150); // Motor direito para trás
-      driveMotor(2, 150);  // Motor esquerdo para frente
+      driveMotor(2, 150); // Motor esquerdo para frente
     } else {
       // Controle de velocidade e curva pelos analógicos
       // Analógico Esquerdo (Y): Para frente e para trás
       // Analógico Direito (X): Para esquerda e para direita
       int stickFrente = Ps3.data.analog.stick.ly; // -128 (frente) a 127 (trás)
-      int stickLado = Ps3.data.analog.stick.rx;   // -128 (esquerda) a 127 (direita)
+      int stickLado = Ps3.data.analog.stick.rx; // -128 (esquerda) a 127 (direita)
 
       // Mapeia os valores dos analógicos para o range de velocidade do PWM (-255 a 255)
       int velocidadeFrente = map(stickFrente, -128, 127, 255, -255);
@@ -113,6 +113,11 @@ void loop() {
   }
 }
 
+/**
+ * @brief Controla um motor DC individualmente.
+ * @param motorNum O número do motor (1 para direito, 2 para esquerdo).
+ * @param speed A velocidade e direção (-255 a 255). Negativo para ré, Positivo para frente, 0 para parar.
+ */
 void driveMotor(int motorNum, int speed) {
   int absSpeed = abs(speed); // Velocidade absoluta
   int finalSpeed = constrain(absSpeed, 0, 255); // Garante que a velocidade está entre 0-255
