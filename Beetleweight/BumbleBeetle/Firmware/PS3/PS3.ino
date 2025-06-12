@@ -1,14 +1,14 @@
 
 #include <Ps3Controller.h>
 
-// --- Pinos para o Motor Driver (H-Bridge) ---
+// --- Pinos para o Motor Driver (ponte h) ---
 // Motor 1 (Direito)
-int RPWM_Output_1 = 18; // PWM para frente
-int LPWM_Output_1 = 19; // PWM para trás
+int RPWM_Output_1 = 16; // PWM para frente
+int LPWM_Output_1 = 17; // PWM para trás
 
 // Motor 2 (Esquerdo)
-int RPWM_Output_2 = 17; // PWM para frente
-int LPWM_Output_2 = 16; // PWM para trás
+int RPWM_Output_2 = 18; // PWM para frente
+int LPWM_Output_2 = 19; // PWM para trás
 
 // --- Configurações de PWM para os motores DC ---
 const int freq = 5000;
