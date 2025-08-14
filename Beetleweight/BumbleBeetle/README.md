@@ -15,10 +15,10 @@
 - **Microcontrolador:** ESP32 DevKit V1  
 - **Controle:** Via Bluetooth usando um controle de PS3  
 - **Motor de Locomoção:** 2x Motor com Caixa de Redução 12V 500RPM  
-- **ESC:** "Genérico" Brushless 40A ESC 2-4S
+- **ESC:** Flysky Raptor5 50A
 
 ### ⚡ Principais Características
 
 - **Arma de aço 1045 com têmpera**
-- **Sistema de auto-recuperação**
-- **Blindagem:** Proteção Impressa de TPU
+- Chassi Impresso de TPU
+
