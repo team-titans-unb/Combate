@@ -113,15 +113,15 @@ void loop() {
     BP32.update();
 
     if (myController && myController->isConnected()) {
-        // --- Controle do Motor com ESC (Liga/Desliga com trigger R2) ---
-        bool r2Pressed = (myController->throttle() > 0); // Trigger R2 pressionado
+        // Controle do ESC com R2
+        bool r2Pressed = (myController->throttle() > 0);
         if (r2Pressed && !r2PressedLast) {
             estadoMotorEsc = !estadoMotorEsc;
             if (estadoMotorEsc) {
-                velocidadeEscAtual = velocidadeEscMin + 5; // Liga com velocidade mínima
+                velocidadeEscAtual = velocidadeEscMin + 5;
                 Serial.println(">> ARMA LIGADA <<");
             } else {
-                velocidadeEscAtual = velocidadeEscMin; // Desliga
+                velocidadeEscAtual = velocidadeEscMin;
                 Serial.println(">> ARMA DESLIGADA <<");
             }
             ledcWrite(escChannel, velocidadeEscAtual);
@@ -129,30 +129,27 @@ void loop() {
         }
         r2PressedLast = r2Pressed;
 
-        // --- Controle de Velocidade da Arma (L2) ---
-        if (estadoMotorEsc) {
-            // L2 - Aumenta velocidade
-            if (myController->brake() > 0) { // L2 pressionado
-                velocidadeEscAtual = constrain(velocidadeEscAtual + 1, velocidadeEscMin, velocidadeEscMax);
-                ledcWrite(escChannel, velocidadeEscAtual);
-                Serial.println("L2: ↑ Aumentando velocidade arma ↑");
-                printStatusArma();
-                delay(100);
-            }
+        // Aumentar velocidade com L2
+        if (estadoMotorEsc && myController->brake() > 0) {
+            velocidadeEscAtual = constrain(velocidadeEscAtual + 1, velocidadeEscMin, velocidadeEscMax);
+            ledcWrite(escChannel, velocidadeEscAtual);
+            Serial.println("L2: ↑ Aumentando velocidade arma ↑");
+            printStatusArma();
+            delay(100);
         }
 
-        // --- Controle de Movimento do Robô ---
-        if (myController->buttons() & 0x1000) {  // Square button - Girar para a direita
-            driveMotor(1, -150);  // Motor direito para trás
-            driveMotor(2, 150);   // Motor esquerdo para frente
-        } else if (myController->buttons() & 0x2000) {  // Circle button - Girar para a esquerda
-            driveMotor(1, 150);   // Motor direito para frente
-            driveMotor(2, -150);  // Motor esquerdo para trás
+        // Movimento com botões e analógicos
+        if (myController->buttons() & 0x1000) {  // Quadrado: gira direita
+            driveMotor(1, -150);
+            driveMotor(2, 150);
+        } else if (myController->buttons() & 0x2000) {  // Bola: gira esquerda
+            driveMotor(1, 150);
+            driveMotor(2, -150);
         } else {
-            int velocidadeFrente = -map(myController->axisY(), -512, 511, -255, 255);  // <-- Invertido para frente correto
+            int velocidadeFrente = -map(myController->axisY(), -512, 511, -255, 255);
             int velocidadeLado = map(myController->axisRX(), -512, 511, 255, -255);
 
-            if (myController->buttons() & 0x100) {  // Triangle button - Debug
+            if (myController->buttons() & 0x100) {  // Triângulo: debug
                 Serial.println(velocidadeFrente);
                 Serial.println("velocidadeFrente");
                 Serial.println(velocidadeLado);
@@ -163,7 +160,6 @@ void loop() {
             int velMotorDireito = velocidadeFrente - velocidadeLado;
             int velMotorEsquerdo = velocidadeFrente + velocidadeLado;
 
-            // Normalização para manter proporção
             int maxVal = max(abs(velMotorDireito), abs(velMotorEsquerdo));
             if (maxVal > 255) {
                 velMotorDireito = (velMotorDireito * 255) / maxVal;
@@ -173,18 +169,23 @@ void loop() {
             driveMotor(1, velMotorDireito);
             driveMotor(2, velMotorEsquerdo);
 
-            // Debug
             Serial.print("Motor D: ");
             Serial.print(velMotorDireito);
             Serial.print(" | Motor E: ");
             Serial.println(velMotorEsquerdo);
         }
+
     } else {
+        // CONTROLE DESCONECTADO: PARAR TUDO!
         driveMotor(1, 0);
         driveMotor(2, 0);
+
         if (estadoMotorEsc) {
-            ledcWrite(escChannel, velocidadeEscMin);
+            velocidadeEscAtual = velocidadeEscMin;
+            ledcWrite(escChannel, velocidadeEscAtual);
             estadoMotorEsc = false;
+            Serial.println(">> CONTROLE DESCONECTADO: ARMA DESLIGADA POR SEGURANÇA <<");
+            printStatusArma();
         }
     }
 }
