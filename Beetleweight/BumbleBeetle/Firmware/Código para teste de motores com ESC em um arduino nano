@@ -1,0 +1,20 @@
+#include <Servo.h>
+
+Servo ESC;
+
+#define POT_PIN A0    // entrada do pot
+#define ESC_PIN 9     // pino de sinal do ESC
+
+void setup() {
+  ESC.attach(ESC_PIN);
+  ESC.writeMicroseconds(1000); // 1000us = zero
+  Serial.begin(9600);
+}
+
+void loop() {
+  int val = analogRead(POT_PIN);          // lê pot (0-1023)
+  val = map(val, 0, 1023, 1000, 2000);   // mapeia para microsegundos
+  ESC.writeMicroseconds(val);             // envia PWM para ESC
+  Serial.println(val);
+  delay(20); // opcional, mas mantém 50 Hz
+}
