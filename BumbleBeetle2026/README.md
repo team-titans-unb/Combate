@@ -19,7 +19,7 @@
 
 ### ⚡ Principais Características
 
-- **Arma de aço 4340 com têmpera**
+- **Arma de aço 4340 temperado**
 - Chassi Impresso de TPU
 
 
