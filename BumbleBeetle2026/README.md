@@ -1,4 +1,4 @@
-# BumbleBeetle2026
+# BumbleBeetle 2.0 (2026)
   
 <p align="center">
   <img src="Image/BumbleBeetle2026Render.jpeg" width="450">
