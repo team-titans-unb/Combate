@@ -1,6 +1,6 @@
 # BumbleBeetle2026
   
-  <img src="Images/BumbleBeetle2026Render.jpg" width="450" align="center">  
+  <img src="Image/BumbleBeetle2026Render.jpg" width="450" align="center">  
 
 ### ⚙️ Especificações Técnicas
 
