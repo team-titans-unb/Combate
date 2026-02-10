@@ -7,7 +7,7 @@
 ### ⚙️ Especificações Técnicas
 
 - **Categoria:** Beetleweight (1,36kg)  
-- **Arma:** Tambor giratório horizontal 70mm x 40mm com pequenos dentes
+- **Arma:** Tambor giratório horizontal 70mm x 40mm
 - **Motor da arma:** --
 - **Tração:** --
 - **Bateria:** FunFly 4S 100C 1550mAh
