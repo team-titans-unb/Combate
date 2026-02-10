@@ -9,7 +9,7 @@
 - **Categoria:** Beetleweight (1,36kg)  
 - **Arma:** Tambor giratório horizontal 70mm x 40mm
 - **Motor da arma:** --
-- **Tração:** --
+- **Tração:** Rodas de PU55
 - **Bateria:** FunFly 4S 100C 1550mAh
 
 ### 📟 Eletrônica
