@@ -8,14 +8,14 @@
 
 - **Categoria:** Beetleweight (1,36kg)  
 - **Arma:** Tambor giratório horizontal 70mm x 40mm
-- **Motor da arma:** --
+- **Motor da arma:** Surpass hobby C2830 - 750KV
 - **Tração:** Rodas de PU55
 - **Bateria:** FunFly 4S 100C 1550mAh
 
 ### 📟 Eletrônica
 
 - **Rádio Controle:** -- 
-- **Motor de Locomoção:** 2x Superpass Hobby 1700KV 
+- **Motor de Locomoção:** 2x Surpass Hobby 1700KV 
 - **ESC da arma:** Flycolor Raptor5 50A
 - **ESC de Locomoção:** --
 
